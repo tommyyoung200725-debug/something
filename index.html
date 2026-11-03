@@ -247,10 +247,62 @@
       pointer-events: none;
     }
 
+    .celebration {
+      position: fixed;
+      inset: 0;
+      z-index: 6;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .celebration.active { visibility: visible; }
+    .celebration-title {
+      margin: 0;
+      color: var(--cream);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.6rem, 9vw, 6rem);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      text-align: center;
+      text-shadow: 0 5px 35px #ff9aab99;
+      opacity: 0;
+      transform: scale(.65) rotate(-5deg);
+    }
+    .celebration.active .celebration-title { animation: birthday-pop 3.2s ease both; }
+    .love-heart {
+      position: absolute;
+      bottom: -12vh;
+      color: var(--pink);
+      font-size: clamp(1.7rem, 5vw, 3.5rem);
+      opacity: 0;
+    }
+    .love-heart.one { left: 12%; }
+    .love-heart.two { left: 30%; color: var(--gold); }
+    .love-heart.three { left: 49%; }
+    .love-heart.four { left: 68%; color: #ffb6c4; }
+    .love-heart.five { left: 84%; color: var(--gold); }
+    .celebration.active .love-heart { animation: heart-rise 2.8s ease-out both; }
+    .celebration.active .love-heart.two { animation-delay: .18s; }
+    .celebration.active .love-heart.three { animation-delay: .36s; }
+    .celebration.active .love-heart.four { animation-delay: .12s; }
+    .celebration.active .love-heart.five { animation-delay: .3s; }
+
     @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-12px) rotate(1deg); } }
     @keyframes flicker { from { transform: rotate(-5deg) scale(.96); } to { transform: rotate(5deg) scale(1.04); } }
     @keyframes twinkle { 0%, 100% { opacity: .42; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.12); } }
     @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes birthday-pop {
+      0% { opacity: 0; transform: scale(.65) rotate(-5deg); }
+      16%, 70% { opacity: 1; transform: scale(1) rotate(0); }
+      100% { opacity: 0; transform: scale(1.08) translateY(-12px); }
+    }
+    @keyframes heart-rise {
+      0% { opacity: 0; transform: translateY(0) scale(.55) rotate(-15deg); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-115vh) scale(1.25) rotate(18deg); }
+    }
 
     @media (max-width: 760px) {
       .page { padding-top: 22px; }
@@ -272,6 +324,14 @@
 </head>
 <body>
   <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="celebration" id="celebration" aria-hidden="true">
+    <p class="celebration-title">Happy Birthday!</p>
+    <span class="love-heart one">♥</span>
+    <span class="love-heart two">♥</span>
+    <span class="love-heart three">♥</span>
+    <span class="love-heart four">♥</span>
+    <span class="love-heart five">♥</span>
+  </div>
   <section class="cover" id="cover">
     <h1>Do u want to be my friends?</h1>
     <p>Mhmmm..</p>
@@ -286,7 +346,7 @@
     <main>
       <section class="copy" id="greeting">
         <p class="eyebrow">Hari yang istimewa</p>
-        <h1>Selamat ulang tahun, <span>kamu.</span></h1>
+        <h1>Happy birthday,<br><span>Tania Akira!</span></h1>
         <div class="wish" id="wish" aria-live="polite">
           Hari ini mungkin bukan hari yang paling mudah buat kamu, tapi keberadaan kamu di dunia ini tetap hal paling membahagiakan buat aku. <strong>Selamat ulang tahun, Princess.</strong> 
         </div>
@@ -312,6 +372,7 @@
   <script>
     const cover = document.querySelector("#cover");
     const surprisePage = document.querySelector("#surprisePage");
+    const celebration = document.querySelector("#celebration");
     const greeting = document.querySelector("#greeting");
     const wish = document.querySelector("#wish");
     const enterButton = document.querySelector("#enterButton");
@@ -374,6 +435,7 @@
       document.body.classList.add("revealed");
       greeting.classList.add("revealed");
       wish.classList.add("visible");
+      celebration.classList.add("active");
       celebrate();
     });
 
@@ -383,6 +445,7 @@
       document.body.classList.remove("revealed");
       greeting.classList.remove("revealed");
       wish.classList.remove("visible");
+      celebration.classList.remove("active");
       cancelAnimationFrame(animationFrame);
       context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     });
