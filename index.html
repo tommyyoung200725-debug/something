@@ -290,7 +290,7 @@
       opacity: 0;
       transform: scale(.65) rotate(-5deg);
     }
-    .celebration.active .celebration-title { animation: birthday-pop 3.2s ease both; }
+    .celebration.active .celebration-title { animation: birthday-pop 3s ease both; }
     .love-heart {
       position: absolute;
       bottom: -12vh;
@@ -303,7 +303,7 @@
     .love-heart.three { left: 49%; }
     .love-heart.four { left: 68%; color: #ffb6c4; }
     .love-heart.five { left: 84%; color: var(--gold); }
-    .celebration.active .love-heart { animation: heart-rise 2.8s ease-out both; }
+    .celebration.active .love-heart { animation: heart-rise 2.6s ease-out both; }
     .celebration.active .love-heart.two { animation-delay: .18s; }
     .celebration.active .love-heart.three { animation-delay: .36s; }
     .celebration.active .love-heart.four { animation-delay: .12s; }
@@ -406,49 +406,7 @@
     const context = canvas.getContext("2d");
     let particles = [];
     let animationFrame;
-    let audioContext;
-
-    async function playTrumpet() {
-      const AudioContextClass = window.AudioContext;
-      if (!AudioContextClass) {
-        console.error("Efek suara tidak didukung oleh browser ini.");
-        return;
-      }
-
-      audioContext ??= new AudioContextClass();
-      await audioContext.resume();
-      const notes = [
-        { frequency: 523.25, duration: .2 },
-        { frequency: 659.25, duration: .2 },
-        { frequency: 783.99, duration: .2 },
-        { frequency: 1046.5, duration: .55 }
-      ];
-      let startTime = audioContext.currentTime + .03;
-
-      notes.forEach(({ frequency, duration }) => {
-        const oscillator = audioContext.createOscillator();
-        const filter = audioContext.createBiquadFilter();
-        const volume = audioContext.createGain();
-        const noteEnd = startTime + duration;
-
-        oscillator.type = "sawtooth";
-        oscillator.frequency.setValueAtTime(frequency, startTime);
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(2400, startTime);
-        filter.Q.setValueAtTime(1.2, startTime);
-        volume.gain.setValueAtTime(.0001, startTime);
-        volume.gain.exponentialRampToValueAtTime(.16, startTime + .035);
-        volume.gain.setValueAtTime(.12, noteEnd - .045);
-        volume.gain.exponentialRampToValueAtTime(.0001, noteEnd);
-
-        oscillator.connect(filter);
-        filter.connect(volume);
-        volume.connect(audioContext.destination);
-        oscillator.start(startTime);
-        oscillator.stop(noteEnd);
-        startTime = noteEnd + .035;
-      });
-    }
+    let revealTimer;
 
     function resizeCanvas() {
       const ratio = window.devicePixelRatio || 1;
@@ -501,16 +459,22 @@
 
     enterButton.addEventListener("click", () => {
       cover.hidden = true;
-      surprisePage.classList.add("visible");
       document.body.classList.add("revealed");
-      greeting.classList.add("revealed");
-      wish.classList.add("visible");
       celebration.classList.add("active");
       celebrate();
-      playTrumpet().catch(error => console.error("Gagal memutar efek terompet:", error));
+
+      revealTimer = window.setTimeout(() => {
+        celebration.classList.remove("active");
+        cancelAnimationFrame(animationFrame);
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        surprisePage.classList.add("visible");
+        greeting.classList.add("revealed");
+        wish.classList.add("visible");
+      }, 3000);
     });
 
     resetButton.addEventListener("click", () => {
+      window.clearTimeout(revealTimer);
       cover.hidden = false;
       surprisePage.classList.remove("visible");
       document.body.classList.remove("revealed");
